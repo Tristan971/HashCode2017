@@ -32,7 +32,7 @@ public class InputFile {
 
 
     public InputFile(List<String> inputLines) {
-        log.info("Loading new input file with lines from {} "+inputLines);
+        log.info("Loading new input file...");
         String[] curline;
 
         curline = inputLines.get(0).split(" ");
@@ -91,6 +91,8 @@ public class InputFile {
     private void loadEndpoints(List<String> inputLines) {
         String[] curLine;
 
+        final Map<Integer, CacheServer> cacheServers = new HashMap<>();
+
         for (int i = 0; i < this.nbendpoints; i++) {
             if (i % 100 == 0) {
                 log.info("Loaded {} endpoints", i);
@@ -115,8 +117,9 @@ public class InputFile {
                 int cacheuid = parseInt(connectionStr[0]);
                 int latency = parseInt(connectionStr[1]);
 
+                CacheServer cacheServer = cacheServers.computeIfAbsent(cacheuid, integer -> new CacheServer(cacheuid));
                 endpoint.getCacheServerLatencyMap().put(
-                        new CacheServer(cacheuid),
+                        cacheServers.get(cacheuid),
                         latency
                 );
 

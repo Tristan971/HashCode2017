@@ -17,26 +17,47 @@ public class Serializer {
     public static String toSolution(List<TimeSaving> orderedTimeSavings) {
         final Map<CacheServer, Set<Integer>> cacheServerVideos = new HashMap<>();
 
-        orderedTimeSavings.parallelStream()
+        orderedTimeSavings
                 .forEach(timeSaving -> {
                     int videouid = timeSaving.getVideoUid();
-                    timeSaving.getCacheServers().parallelStream()
+                    timeSaving.getCacheServers()
                             .forEach(cacheServer -> {
-                                cacheServerVideos.putIfAbsent(cacheServer, new HashSet<>());
-                                cacheServerVideos.get(cacheServer).add(videouid);
+                                if (cacheServer != null) {
+                                    cacheServerVideos.putIfAbsent(cacheServer, new HashSet<>());
+                                    cacheServerVideos.get(cacheServer).add(videouid);
+                                }
                             });
                 });
 
         final StringBuilder solutionBuilder = new StringBuilder();
-        solutionBuilder.append(cacheServerVideos.keySet().size()).append("\n");
 
-        cacheServerVideos.keySet().parallelStream()
+
+
+
+        Map<Integer, Set<Integer>> cacheServerFinal = new HashMap<>();
+
+
+        //region MERGE VIDEO CACHE SETS
+        cacheServerVideos.keySet()
                 .forEach(cacheServer -> {
-                    String videos = cacheServerVideos.get(cacheServer)
-                            .parallelStream()
+                    cacheServerFinal.putIfAbsent(cacheServer.getUid(), new HashSet<>());
+
+                    Set<Integer> oldSet = cacheServerFinal.get(cacheServer.getUid());
+                    Set<Integer> newSet = cacheServerVideos.get(cacheServer);
+                    newSet.addAll(oldSet);
+
+                    cacheServerFinal.put(cacheServer.getUid(), newSet);
+                });
+        //endregion
+
+        solutionBuilder.append(cacheServerFinal.keySet().size()).append("\n");
+        cacheServerFinal.keySet()
+                .forEach(cacheUUID -> {
+                    String videos = cacheServerFinal.get(cacheUUID)
+                            .stream()
                             .map(i -> Integer.toString(i))
                             .collect(Collectors.joining(" "));
-                    solutionBuilder.append(cacheServer.getUid()).append(" ").append(videos).append("\n");
+                    solutionBuilder.append(cacheUUID).append(" ").append(videos).append("\n");
                 });
 
         return solutionBuilder.toString();
