@@ -11,7 +11,6 @@ import java.util.Map;
  */
 @Data
 public class Endpoint {
-    private final int uid;
+    private final int dataserverlatency;
     private final Map<CacheServer, Integer> cacheServerLatencyMap = new HashMap<>();
-
 }

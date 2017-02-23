@@ -27,7 +27,7 @@ public class InputFile {
     private int cachesrvsize;
 
     private List<Video> videos = new ArrayList<>();
-    private List<Endpoint> endpoints = new ArrayList<>();
+    private Map<Integer, Endpoint> endpoints = new HashMap<>();
     private Set<Request> requests = new HashSet<>();
 
 
@@ -96,7 +96,7 @@ public class InputFile {
                 log.info("Loaded {} endpoints", i);
             }
             curLine = inputLines.get(0).split(" ");
-            int endpointntuid = parseInt(curLine[0]);
+            int dataserverlatency = parseInt(curLine[0]);
             int connectedcaches = parseInt(curLine[1]);
 
             //region filter out disconnected endpoints
@@ -109,7 +109,7 @@ public class InputFile {
             //endregion
 
             //region Load the endpoint
-            Endpoint endpoint = new Endpoint(endpointntuid);
+            Endpoint endpoint = new Endpoint(dataserverlatency);
             for (int j = 0; j < connectedcaches; j++) {
                 String[] connectionStr = inputLines.get(1).split(" ");
                 int cacheuid = parseInt(connectionStr[0]);
@@ -122,7 +122,7 @@ public class InputFile {
 
                 inputLines.remove(1);
             }
-            this.endpoints.add(endpoint);
+            this.endpoints.put(i, endpoint);
             //endregion
 
             inputLines.remove(0);
