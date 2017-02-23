@@ -98,11 +98,11 @@ public class InputFile {
             curLine = inputLines.get(0).split(" ");
             int endpointntuid = parseInt(curLine[0]);
             int connectedcaches = parseInt(curLine[1]);
-            log.debug("Loading endpoint from : {}", Arrays.toString(curLine));
 
             //region filter out disconnected endpoints
             //Skip nonconnected endpoints. They'll use cache anyway
             if (connectedcaches == 0) {
+                log.info("Endpoint {} was not connected to any cache server", Arrays.toString(curLine));
                 inputLines.remove(0);
                 continue;
             }
