@@ -1,6 +1,7 @@
 package moe.tristan.HashCode2017;
 
 import lombok.extern.slf4j.Slf4j;
+import moe.tristan.HashCode2017.util.InputFile;
 import moe.tristan.HashCode2017.util.Parser;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,6 +21,8 @@ public class HashCode2017 {
         // End of initialization //
 
         Parser parser = context.getBean(Parser.class);
-        Parser.parseFile("kittens.in");
+        InputFile kittens = Parser.parseFile("kittens.in");
+
+        log.info("Loaded input file Kittens ! -> {}", kittens.toString());
     }
 }
