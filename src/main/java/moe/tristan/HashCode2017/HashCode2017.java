@@ -74,7 +74,10 @@ public class HashCode2017 {
                     CacheServer bestCacheServer = cacheServerLatencies
                             .keySet()
                             .parallelStream()
+                            .filter(Objects::nonNull)
+                            .filter(cacheServerLatencies::containsKey)
                             .filter(server -> cacheServerLatencies.get(server) == bestCacheServerLatency)
+                            .filter(Objects::nonNull)
                             .findAny()
                             .orElse(null);
 
@@ -85,7 +88,7 @@ public class HashCode2017 {
                     // Check useful
                     if (gain > 0) {
                         // Check possible
-                        if (inputFile.getCachesrvsize() - bestCacheServer.getUsedMB() >= video.getSizeMB()) {
+                        if (bestCacheServer != null && inputFile.getCachesrvsize() - bestCacheServer.getUsedMB() >= video.getSizeMB()) {
                             if (videoTimeSavings.containsKey(request.getVideouid())) {
                                 TimeSaving timeSaving = videoTimeSavings.get(request.getVideouid());
                                 timeSaving.getCacheServers().add(bestCacheServer);
