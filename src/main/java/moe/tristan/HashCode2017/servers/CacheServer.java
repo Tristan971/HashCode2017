@@ -8,5 +8,5 @@ import lombok.Data;
 @Data
 public class CacheServer {
     private final int uid;
-    private final int usedMB = 0;
+    private int usedMB = 0;
 }

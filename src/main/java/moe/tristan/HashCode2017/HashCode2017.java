@@ -7,11 +7,14 @@ import moe.tristan.HashCode2017.users.Endpoint;
 import moe.tristan.HashCode2017.users.Request;
 import moe.tristan.HashCode2017.util.InputFile;
 import moe.tristan.HashCode2017.util.Parser;
+import moe.tristan.HashCode2017.util.Serializer;
 import moe.tristan.HashCode2017.util.TimeSaving;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,7 @@ public class HashCode2017 {
         final int[] processed = new int[] {0};
 
         requests.parallelStream()
+                .filter(Objects::nonNull)
                 .forEach(request -> {
                     //region GET REQUEST BEST GAIN INFO
                     Video video = videos.get(request.getVideouid());
@@ -58,6 +62,8 @@ public class HashCode2017 {
                     Map<CacheServer, Integer> cacheServerLatencies =
                             endpoints.get(request.getEndpointuid())
                                     .getCacheServerLatencyMap();
+
+                    assert cacheServerLatencies != null;
 
                     int bestCacheServerLatency = cacheServerLatencies
                             .values()
@@ -75,6 +81,7 @@ public class HashCode2017 {
                     int gain = (latencyDatacenter - bestCacheServerLatency) * multiplicity;
                     //endregion
 
+                    //region COMPUTE TIME SAVINGS
                     // Check useful
                     if (gain > 0) {
                         // Check possible
@@ -82,11 +89,13 @@ public class HashCode2017 {
                             if (videoTimeSavings.containsKey(request.getVideouid())) {
                                 TimeSaving timeSaving = videoTimeSavings.get(request.getVideouid());
                                 timeSaving.getCacheServers().add(bestCacheServer);
+                                bestCacheServer.setUsedMB(bestCacheServer.getUsedMB() + video.getSizeMB());
                                 int oldtimesave = timeSaving.getTimesaved();
                                 timeSaving.setTimesaved(oldtimesave+gain);
                             } else {
                                 TimeSaving timeSaving = new TimeSaving(request.getVideouid(), video);
                                 timeSaving.getCacheServers().add(bestCacheServer);
+                                bestCacheServer.setUsedMB(bestCacheServer.getUsedMB() + video.getSizeMB());
                                 timeSaving.setTimesaved(gain);
                                 videoTimeSavings.put(request.getVideouid(), timeSaving);
                             }
@@ -95,10 +104,13 @@ public class HashCode2017 {
                     if (++processed[0] % 100 == 0) {
                         log.info("Processed {} requests.", processed[0]);
                     }
+                    //endregion
                 });
 
         log.info("Processed all {} requests!", processed[0]);
 
+
+        //region SORT TIME SAVINGS
         final int[] sorted = new int[] {0};
         List<TimeSaving> timeSavings = videoTimeSavings.values()
                 .parallelStream()
@@ -110,7 +122,10 @@ public class HashCode2017 {
                 })
                 .sorted((t1, t2) -> t1.getTimesaved() >= t2.getTimesaved() ? 1 : -1)
                 .collect(Collectors.toList());
+        //endregion
 
-
+        String solution = Serializer.toSolution(timeSavings);
+        Path outfile = Paths.get("/Users/Tristan/IdeaProjects/HashCode2017/output/kittens.out");
+        Serializer.writeSolution(outfile, solution);
     }
 }
