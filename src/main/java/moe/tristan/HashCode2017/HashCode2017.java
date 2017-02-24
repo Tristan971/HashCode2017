@@ -16,6 +16,9 @@ import org.springframework.context.ApplicationContext;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -30,48 +33,47 @@ public class HashCode2017 {
     public static void main(String[] args) {
         context = SpringApplication.run(HashCode2017.class);
         // End of initialization //
-        //ThreadPoolExecutor executor = new ThreadPoolExecutor(
-        //        8,
-        //        8,
-        //        5,
-        //        TimeUnit.SECONDS,
-        //        new ArrayBlockingQueue<>(4));
-//
-        //log.info("Submitted Kittens!");
-        //executor.submit(() -> {
-        //    InputFile kittens = Parser.parseFile("kittens.in");
-        //    log.info("Loaded input file Kittens ! -> {}", kittens.toString());
-        //    winHashcode(kittens, "kittens.out");
-        //    log.info("Finished kittens!");
-        //});
-//
-        //log.info("Submitted Zoo!");
-        //executor.submit(() -> {
-        //    InputFile zoo = Parser.parseFile("me_at_the_zoo.in");
-        //    log.info("Loaded input file me_at_the_zoo ! -> {}", zoo.toString());
-        //    winHashcode(zoo, "me_at_the_zoo.out");
-        //    log.info("Finished me_at_the_zoo!");
-        //});
-//
-        //log.info("Submitted Trending today!");
-        //executor.submit(() -> {
-        //    InputFile trendingToday = Parser.parseFile("trending_today.in");
-        //    log.info("Loaded input file trending_today ! -> {}", trendingToday.toString());
-        //    winHashcode(trendingToday, "trending_today.out");
-        //    log.info("Finished trending_today!");
-        //});
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                8,
+                8,
+                5,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(4));
+
+        log.info("Submitted Kittens!");
+        executor.submit(() -> {
+            InputFile kittens = Parser.parseFile("kittens.in");
+            log.info("Loaded input file Kittens ! -> {}", kittens.toString());
+            winHashcode(kittens, "kittens.out");
+            log.info("Finished kittens!");
+        });
+
+        log.info("Submitted Zoo!");
+        executor.submit(() -> {
+            InputFile zoo = Parser.parseFile("me_at_the_zoo.in");
+            log.info("Loaded input file me_at_the_zoo ! -> {}", zoo.toString());
+            winHashcode(zoo, "me_at_the_zoo.out");
+            log.info("Finished me_at_the_zoo!");
+        });
+
+        log.info("Submitted Trending today!");
+        executor.submit(() -> {
+            InputFile trendingToday = Parser.parseFile("trending_today.in");
+            log.info("Loaded input file trending_today ! -> {}", trendingToday.toString());
+            winHashcode(trendingToday, "trending_today.out");
+            log.info("Finished trending_today!");
+        });
 
         log.info("Submitted VWS!");
-        //executor.submit(() -> {
-        InputFile videosWorth = Parser.parseFile("videos_worth_spreading.in");
-        log.info("Loaded input file videos_worth_spreading ! -> {}", videosWorth.toString());
-        winHashcode(videosWorth, "videos_worth_spreading.out");
-        log.info("Finished videos_worth_spreading!");
-        //});
+        executor.submit(() -> {
+            InputFile videosWorth = Parser.parseFile("videos_worth_spreading.in");
+            log.info("Loaded input file videos_worth_spreading ! -> {}", videosWorth.toString());
+            winHashcode(videosWorth, "videos_worth_spreading.out");
+            log.info("Finished videos_worth_spreading!");
+        });
 
-        //executor.shutdown();
+        executor.shutdown();
         log.info("Finished processing.");
-
     }
 
     public static void winHashcode(InputFile inputFile, String outputfile) {
